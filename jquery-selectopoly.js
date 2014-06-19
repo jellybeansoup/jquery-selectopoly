@@ -71,6 +71,10 @@
 					widget._dom.group.on('change','select:not([multiple])',function(){
 						// Update the value of the main field
 						widget._updateFieldValues( widget._dom.group );
+						// Don't go any further if the last dummy is blank
+						if( widget._dom.group.find('select:not([multiple]):last').val() === '' ) {
+							return;
+						}
 						// Clone and insert a new row
 						widget._addNewField();
 						// Add the removal buttons
