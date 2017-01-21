@@ -50,7 +50,7 @@
 					widget._dom.group.insertAfter( widget._dom.original ).append( widget._dom.original );
 					// Prepare a template
 					widget._dom.template = $('<span />').addClass('form-group').addClass('repeater');
-					var template_field = widget._dom.original.clone().removeAttr('multiple name id size');
+					var template_field = widget._dom.original.clone().removeAttr('required multiple name id size');
 					template_field.find('option[selected]').removeAttr('selected');
 					if( template_field.find( 'option[value=""]' ).length <= 0 ) {
 						template_field.prepend('<option value="">Select…</option>');
@@ -64,8 +64,9 @@
 						var row = widget._addNewField();
 						// Select the value
 						row.find('select').val( selectedValues[i] );
-						// Add the removal buttons
+
 						widget._updateRemovalButtons();
+						widget._updateRequiredFlag();
 					}
 					// When a field changes
 					widget._dom.group.on('change','select:not([multiple])',function(){
@@ -77,8 +78,9 @@
 						}
 						// Clone and insert a new row
 						widget._addNewField();
-						// Add the removal buttons
+
 						widget._updateRemovalButtons();
+						widget._updateRequiredFlag();
 					});
 					// When a field changes
 					widget._dom.group.on('click','.repeater-remove',function(){
@@ -86,8 +88,9 @@
 						$(this).parents('.form-group.repeater').first().remove();
 						// Update the value of the main field
 						widget._updateFieldValues();
-						// Add the removal buttons
+
 						widget._updateRemovalButtons();
+						widget._updateRequiredFlag();
 					});
 					// Hide the original select
 					widget._dom.original.hide();
@@ -139,6 +142,27 @@
 							$(this).find('.repeater-remove').remove();
 						}
 					});
+				},
+
+				/**
+				* Insert required flags as required.
+				* Also get rid of the "Select..." option when it's not needed.
+				* @return void
+				*/
+
+				_updateRequiredFlag: function() {
+					var selects = this._dom.group.find('.form-group.repeater select');
+					var empty = selects.filter(function(){
+						return $(this).val() === "";
+					});
+
+					if( selects.length === empty.length ) {
+						selects.first().attr({ required: 'required' });
+					}
+
+					else {
+						selects.first().removeAttr('required');
+					}
 				},
 
 				/**
