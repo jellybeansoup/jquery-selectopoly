@@ -110,7 +110,7 @@
 				*/
 				_prepareTemplate: function() {
 					this._dom.template = $('<span />').addClass('form-group').addClass('repeater');
-					var template_field = this._dom.original.clone().removeAttr('required multiple name id size');
+					var template_field = this._dom.original.clone().removeAttr('required multiple name id size style');
 					template_field.find('option[selected]').removeAttr('selected');
 					if( template_field.find( 'option[value=""]' ).length <= 0 ) {
 						template_field.prepend('<option value="">Select…</option>');
