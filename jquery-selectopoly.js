@@ -48,26 +48,34 @@
 					// Create a repeater group
 					widget._dom.group = $('<span />').addClass('selectopoly').addClass('repeater-group');
 					widget._dom.group.insertAfter( widget._dom.original ).append( widget._dom.original );
-					// Prepare a template
-					widget._dom.template = $('<span />').addClass('form-group').addClass('repeater');
-					var template_field = widget._dom.original.clone().removeAttr('required multiple name id size');
-					template_field.find('option[selected]').removeAttr('selected');
-					if( template_field.find( 'option[value=""]' ).length <= 0 ) {
-						template_field.prepend('<option value="">Select…</option>');
-					}
-					widget._dom.template.append( template_field );
-					// Prepopulate with the existing values
-					var selectedValues = widget._dom.original.val() || [];
-					selectedValues.push(''); // We add a value for an extra field
-					for( var i in selectedValues ) {
-						// Clone and insert a new row
-						var row = widget._addNewField();
-						// Select the value
-						row.find('select').val( selectedValues[i] );
+					// When a field changes
+					widget._dom.group.on('change','select[multiple]',function(){
+						var dummyValues = widget._getDummyValues() || [];
+						var originalValues = widget._dom.original.val() || [];
 
-						widget._updateRemovalButtons();
-						widget._updateRequiredFlag();
-					}
+						for( var x in originalValues ) {
+							var value = originalValues[x];
+							
+							if( dummyValues.indexOf(value) !== -1 ) {
+								continue;
+							}
+							
+							dummyValues.push(value);
+						}
+
+						widget._prepareTemplate();
+						widget._dom.group.find('.form-group.repeater').remove();
+
+						for( var y in dummyValues ) {
+							var row = widget._addNewField();
+							row.find('select').val(dummyValues[y]);
+	
+							widget._updateRemovalButtons();
+							widget._updateRequiredFlag();
+						}
+						
+						widget._addNewField();
+					});
 					// When a field changes
 					widget._dom.group.on('change','select:not([multiple])',function(){
 						// Update the value of the main field
@@ -93,7 +101,37 @@
 						widget._updateRequiredFlag();
 					});
 					// Hide the original select
-					widget._dom.original.hide();
+					widget._dom.original.trigger('change').hide();
+				},
+
+				/**
+				* Prepare a template based on the original select
+				* @return void
+				*/
+				_prepareTemplate: function() {
+					this._dom.template = $('<span />').addClass('form-group').addClass('repeater');
+					var template_field = this._dom.original.clone().removeAttr('required multiple name id size');
+					template_field.find('option[selected]').removeAttr('selected');
+					if( template_field.find( 'option[value=""]' ).length <= 0 ) {
+						template_field.prepend('<option value="">Select…</option>');
+					}
+					this._dom.template.append( template_field );
+				},
+
+				/**
+				* Get the values of the dummy fields
+				* @return Array of values.
+				*/
+				_getDummyValues: function() {
+					var values = [];
+					this._dom.group.find('.form-group.repeater select').each(function(){
+						var value = $(this).val();
+						
+						if (value.length > 0) {
+							values.push(value);
+						}
+					});
+					return values;
 				},
 
 				/**
@@ -111,11 +149,7 @@
 				*/
 
 				_updateFieldValues: function() {
-					var values = [];
-					this._dom.group.find('.form-group.repeater select').each(function(){
-						values.push( $(this).val() );
-					});
-					this._dom.group.find('select[multiple]').val( values );
+					this._dom.group.find('select[multiple]').val( this._getDummyValues() );
 				},
 
 				/**
