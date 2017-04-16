@@ -63,6 +63,8 @@
 							dummyValues.push(value);
 						}
 
+						dummyValues.push(null);
+
 						widget._prepareTemplate();
 						widget._dom.group.find('.form-group.repeater').remove();
 
@@ -73,8 +75,6 @@
 							widget._updateRemovalButtons();
 							widget._updateRequiredFlag();
 						}
-						
-						widget._addNewField();
 					});
 					// When a field changes
 					widget._dom.group.on('change','select:not([multiple])',function(){
