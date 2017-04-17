@@ -127,7 +127,7 @@
 					this._dom.group.find('.form-group.repeater select').each(function(){
 						var value = $(this).val();
 						
-						if (value.length > 0) {
+						if (value !== null && value.length > 0) {
 							values.push(value);
 						}
 					});
